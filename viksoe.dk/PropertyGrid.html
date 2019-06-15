@@ -1,0 +1,97 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><meta name="author" content="Bjarke Viksoe"><meta name="copyright" content="viksoe.dk"><meta name="keywords" content="viksoe.dk, source code, windows, propertygrid control, property grid, grid, editor, property control, inplace editing, listview, wtl"><meta name="description" content="A simple WTL grid control"><title>viksoe.dk - PropertyGrid control</title><link rel="stylesheet" type="text/css" href="site/style.css"></head><body><div align="center"><table border="0" cellpadding="0" cellspacing="0" width="100%" style="display:block; max-width: 70em; margin: auto;"> <tr> <td background="site/ulc.gif" height="36" width="180">&nbsp;</td> <td background="site/ul.gif" height="36">&nbsp;</td> <td background="site/urc.gif" height="36" width="36">&nbsp;</td></tr> <tr> <td background="site/l.gif" valign="top" width="180"><nav> <a href="index.htm"><img alt="Home" title="Home" border="0" height="36" hspace="0" src="site/i_home.gif" width="180"></a><br> <a href="all_news.htm"><img alt="Recent changes" title="Recent changes" border="0" height="36" hspace="0" src="site/i_news.gif" width="180"></a><br> <img border="0" height="36" hspace="0" src="site/l.gif" width="180" alt=""><br> <a href="all_atl.htm"><img alt="ATL code" title="ATL code" border="0" height=36 hspace="0" src="site/i_atl.gif" width="180"></a><br> <a href="all_wtl.htm"><img alt="WTL code" title="WTL code" border="0" height=36 hspace="0" src="site/i_wtl.gif" width="180"></a><br> <a href="all_mfc.htm"><img alt="MFC code" title="MFC code" border="0" height=36 hspace="0" src="site/i_mfc.gif" width="180"></a><br> <a href="all_cpp.htm"><img alt="C++ code" title="C++ code" border="0" height=36 hspace="0" src="site/i_cpp.gif" width="180"></a><br> <a href="all_net.htm"><img alt=".Net code" title=".Net code" border="0" height="36" hspace="0" src="site/i_net.gif" width="180"></a><br> <a href="all_wince.htm"><img alt="PocketPC code" title="PocketPC code" border="0" height="36" hspace="0" src="site/i_wince.gif" width="180"></a><br> <a href="all_misc.htm"><img alt="Miscellaneous" title="Miscellaneous" border="0" height="36" hspace="0" src="site/i_misc.gif" width="180"></a><br> </nav></td> <td valign="top" align="left"> <p align="center"><img width="225" height="45" src="site/logo.gif" alt="viksoe.dk"></p><a name="top"></a><article role="article" itemscope itemtype="http://schema.org/BlogPosting"><header><h1 itemprop="name">PropertyGrid control</h1></header>
+<p><img src="screenshots/propertygrid.gif" itemprop="image" alt="PropertyGrid control"></p>
+<span itemprop="author" itemscope itemtype="http://schema.org/Person"><small><font color="darkgray">Written by <span itemprop="name">Bjarke Viksoe</span>.</font></small></span><br><small><font color="darkgray">This article was submitted <time pubdate="pubdate" datetime="2002-01-26">1/26/2002</time>.</font></small><meta itemprop="datePublished" content="2002-01-26"><br><br><br>
+<div itemprop="articleBody">This is the 3rd control built using a set of reusable in-place editor windows and classes.
+This time it is a <b>grid</b> control.
+<p>
+A grid control is similar to a normal list control, except that each sub-item is
+editable. Sub-items can contain text values (for editing), dropdown lists, filename browsers
+or pretty much any type imaginable.
+<p>
+Just as my other property controls (the <b>PropertyList</b> and <b>PropertyTree</b> controls),
+it's using the same selection of in-place editors, ranging from dropdown lists to filename browsers.
+They are all implemented as standard windows, which link to the parent control through a generic 
+interface and some shared window messages.
+Because of this design, you may extend the control with your own property types.
+<br>
+The control is a subclassed <code>ListView</code> control. 
+<p>
+The nice thing about this grid control is that it uses the same navigation as a
+normal spreadsheet grid, and that it has many familiar keyboard-shortcuts (F2 key and
+space works as expected). It doesn't do sofisticated row/column selection or copy/paste
+functionality, but for a fast type-in grid control it's very nice.
+
+<h2>How to use it</h2>
+Place a <code>ListView</code> control on a dialog.
+<br>
+Add a member variable to your dialog class...
+<pre><code>CPropertyGridCtrl m_Grid</code></pre>
+In the <code>OnInitDialog()</code> event handler, add the following line:
+<pre><code>LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPA...
+{
+  ...
+  m_Grid.SubclassWindow(GetDlgItem(IDC_LIST1));
+  ...
+}</code></pre>
+Then add the following reflection macro to your main message map:
+<pre><code>BEGIN_MSG_MAP(CMainDlg)
+  ...
+  <b>REFLECT_NOTIFICATIONS()</b>
+END_MSG_MAP()</code></pre>
+<br>
+Here are some of the control methods available:
+<pre><code>InsertItem
+SetSubItem
+GetItemText
+GetItemValue
+SetItemValue
+GetItemEnabled
+GetItemEnabled
+GetItemData
+SetItemData</code></pre>
+and several of the original <code>CListViewCtrl</code> methods still work as well.
+<p>
+Just like the <code>ListView</code> control, you need to add column headers first.
+<pre><code>  m_Grid.InsertColumn(0, &quot;Name&quot;, LVCFMT_LEFT, 200, 0);</code></pre>
+Once you have added your column headers, you cannot add or delete them again.
+<p>
+Adding a new property requires using a &quot;<i>creation helper</i>&quot; method...
+<pre><code>  m_Grid.InsertItem(0, PropCreateSimple(&quot;&quot;, "Raymond"), 0);
+  m_Grid.SetSubItem(0, 1, PropCreateSimple(&quot;&quot;, false));
+  m_Grid.SetSubItem(0, 2, PropCreateCheckButton(&quot;&quot;, true));</code></pre>
+Note how the <b>Name</b> argument (1st argument) is empty for the <i>creation helper</i> routines
+since properties in this control do not have an attached label.
+<br>
+You may also associate some item-data to each property using the <code>SetItemData()</code> method, 
+so it can later be identified.
+<br>
+The <a href="propertylist.htm">PropertyList</a> control sample explains how to use 
+some of the other editors.
+<p>
+Several notifications are sent back to the owner window. 
+They contain information about the changing property using 
+<code>WM_NOTIFY</code> notification structure: <code>NMPROPERTYITEM</code>.
+The list of notifications currently include:
+<pre><code>PIN_SELCHANGED
+PIN_ITEMCHANGING
+PIN_ITEMCHANGED
+PIN_BROWSE
+PIN_CLICK</code></pre>
+In addition, all of the original <code>ListView</code> notifications are also
+available. Use the <code>GetSelectedIndex()</code> and <code>GetSelectedColumn()</code>
+methods to located the selected property.
+
+
+<h2>Source Code Dependencies</h2>
+<a href="https://visualstudio.microsoft.com/" animsrc="no">Microsoft Visual C++ 6.0</a><br>
+<a href="https://sourceforge.net/projects/wtl/" animsrc="no">Microsoft WTL 3.1 Library</a><br>
+
+<h2>See Also</h2>
+<a href="propertylist.htm">My Property List control</a><br>
+<a href="propertytree.htm">My Property Tree control</a><br>
+<a href="choicebar.htm">My ChoiceBar control for adding your own pop-ups</a><br>
+<a name="download"></a><section><h2>Download Files</h2>
+<table><tr><td><img src="site/download.gif" alt="Download" border="0"></td><td><a href="downloads/propertycontroltest_src.zip">Source Code and sample <small>(58 Kb)</small></a><br>
+</td></tr></table></section></div></article><br><a href="#top"><small><font color="darkgray">To the top</font></small></a><p>&nbsp;</p> <p class="news">&nbsp;</p> </td> <td background="site/rl.gif" width="36"><img height="1" src="site/rl.gif" width="36" alt=""></td></tr> <tr align="left"> <td background="site/llc.gif" height="36" width="180">&nbsp;</td> <td background="site/bl.gif" height="36">&nbsp;</td> <td background="site/lrc.gif" height="36" width="36">&nbsp;</td></tr></table></div></body></html>

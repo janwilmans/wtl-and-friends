@@ -1,0 +1,88 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><meta name="author" content="Bjarke Viksoe"><meta name="copyright" content="viksoe.dk"><meta name="keywords" content="viksoe.dk, source code, windows, atldock.h, docking, docking windows, floating, control bar, dock framework, dock a view, toolbar, detach window, wtl"><meta name="description" content="A basic docking windows framework for WTL"><title>viksoe.dk - atldock.h</title><link rel="stylesheet" type="text/css" href="site/style.css"></head><body><div align="center"><table border="0" cellpadding="0" cellspacing="0" width="100%" style="display:block; max-width: 70em; margin: auto;"> <tr> <td background="site/ulc.gif" height="36" width="180">&nbsp;</td> <td background="site/ul.gif" height="36">&nbsp;</td> <td background="site/urc.gif" height="36" width="36">&nbsp;</td></tr> <tr> <td background="site/l.gif" valign="top" width="180"><nav> <a href="index.htm"><img alt="Home" title="Home" border="0" height="36" hspace="0" src="site/i_home.gif" width="180"></a><br> <a href="all_news.htm"><img alt="Recent changes" title="Recent changes" border="0" height="36" hspace="0" src="site/i_news.gif" width="180"></a><br> <img border="0" height="36" hspace="0" src="site/l.gif" width="180" alt=""><br> <a href="all_atl.htm"><img alt="ATL code" title="ATL code" border="0" height=36 hspace="0" src="site/i_atl.gif" width="180"></a><br> <a href="all_wtl.htm"><img alt="WTL code" title="WTL code" border="0" height=36 hspace="0" src="site/i_wtl.gif" width="180"></a><br> <a href="all_mfc.htm"><img alt="MFC code" title="MFC code" border="0" height=36 hspace="0" src="site/i_mfc.gif" width="180"></a><br> <a href="all_cpp.htm"><img alt="C++ code" title="C++ code" border="0" height=36 hspace="0" src="site/i_cpp.gif" width="180"></a><br> <a href="all_net.htm"><img alt=".Net code" title=".Net code" border="0" height="36" hspace="0" src="site/i_net.gif" width="180"></a><br> <a href="all_wince.htm"><img alt="PocketPC code" title="PocketPC code" border="0" height="36" hspace="0" src="site/i_wince.gif" width="180"></a><br> <a href="all_misc.htm"><img alt="Miscellaneous" title="Miscellaneous" border="0" height="36" hspace="0" src="site/i_misc.gif" width="180"></a><br> </nav></td> <td valign="top" align="left"> <p align="center"><img width="225" height="45" src="site/logo.gif" alt="viksoe.dk"></p><a name="top"></a><article role="article" itemscope itemtype="http://schema.org/BlogPosting"><header><h1 itemprop="name">atldock.h</h1></header>
+<p><img src="screenshots/atldock.gif" itemprop="image" alt="atldock.h"></p>
+<span itemprop="author" itemscope itemtype="http://schema.org/Person"><small><font color="darkgray">Written by <span itemprop="name">Bjarke Viksoe</span>.</font></small></span><br><small><font color="darkgray">This article was submitted <time pubdate="pubdate" datetime="2001-06-07">6/7/2001</time>.</font></small><meta itemprop="datePublished" content="2001-06-07"><br><br><br>
+<div itemprop="articleBody">This is an implementation of a basic docking windows framework
+for the WTL library.
+<p>
+It adds the ability to dock and float windows at the edges of the
+WTL application.
+<br>
+Please note that it is not a Control Bar implementation, so: you
+cannot dock in the toolbar area; you're not allowed to bundle several
+docking areas side by side; it has very simplistic sizing algorithms;
+it's difficult to restore the exact docking position programmatically.
+<br>
+But still, it smells like docking windows.
+<p>
+It's easy to add the docking framework to your project. Assuming
+it's a MDI project (though it works with SDI projects too) you
+need to add the <b>atldock.h</b> header to your includes.
+<br>
+Then add a docking window to your frame window:
+<pre><code>   CDockingWindow m_dock;
+</code></pre>
+Create the docking window <i>after</i> the MDI client has been
+created and set, like this:
+<pre><code>   LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM ...
+   {
+      ...
+      CreateMDIClient();
+      m_CmdBar.SetMDIClient(m_hWndMDIClient);
+<b>
+      m_hWndClient = m_dock.Create(m_hWnd, rcDefault);
+      m_dock.SetClient(m_hWndMDIClient);</b>
+      ...
+</code></pre>
+Then create the views and add them to the docking framework
+using the <code>AddWindow()</code> method. Use the
+<code>DockWindow()</code> method to place the window in its
+initial docking position.
+<pre><code>      m_view1.Create(m_hWndClient, rcDefault, _T("View1"), 
+         WS_CHILD|WS_VISIBLE|WS_CLIPSIBLINGS|
+         WS_CLIPCHILDREN, 
+         WS_EX_CLIENTEDGE);
+      m_dock.AddWindow(m_view1);
+      m_dock.DockWindow(m_view1, DOCK_LEFT);
+</code></pre>
+And that's it.
+<br>
+You may want to hook up the views and the MDI client for
+window messaging too. There are several options (like using
+the <code>PreTranslateMessage()</code> method) but you
+might as well use the message map macros:
+<pre><code>      CHAIN_MDI_CHILD_COMMANDS()
+      CHAIN_DOCK_CHILD_COMMANDS(m_view1)</code></pre>
+<br>
+The docking class supports a few optional settings, which controls
+how windows are managed when they are closed. Much of this support
+was added by <a href="mailto:msimon@locustrading.com">Mike Simon</a>.
+Use the <code>SetExtendedDockStyle</code> to control the behaviour.
+
+<h3>Other Extensions</h3>
+Also included in the package are classes for an alternate
+framework look. They are based on modifications 
+<a href="mailto:jnilsson@icebreaker.com">Jens Nilsson</a> 
+sent me. They demonstrate how to override the custom
+painting of splitter bars and grippers.
+<br>
+To use them, include <b>atldock2.h</b> and
+use <code>CFlatDockingWindow</code> instead of
+<code>CDockingWindow</code>.
+<p>
+Jens Nilsson also contributed with a &quot;stacking&quot; version,
+which behaves a bit like the 
+<a HREF="http://www.visio.com" TARGET="_blank">VISIO</a> 
+stencil user interface.
+You can <a href="static_downloads/uitest3.zip">download it here</a>.
+
+
+<h2>Source Code Dependencies</h2>
+<a href="https://sourceforge.net/projects/wtl/" animsrc="no">Microsoft WTL 3.1 Library</a><br>
+
+<h2>See Also</h2>
+<a href="fancyui.htm">A WTL sample that uses the class</a><br>
+<a name="download"></a><section><h2>Download Files</h2>
+<table><tr><td><img src="site/download.gif" alt="Download" border="0"></td><td><a href="downloads/atldock_src.zip">Source Code <small>(15 Kb)</small></a><br>
+</td></tr></table></section></div></article><br><a href="#top"><small><font color="darkgray">To the top</font></small></a><p>&nbsp;</p> <p class="news">&nbsp;</p> </td> <td background="site/rl.gif" width="36"><img height="1" src="site/rl.gif" width="36" alt=""></td></tr> <tr align="left"> <td background="site/llc.gif" height="36" width="180">&nbsp;</td> <td background="site/bl.gif" height="36">&nbsp;</td> <td background="site/lrc.gif" height="36" width="36">&nbsp;</td></tr></table></div></body></html>

@@ -1,0 +1,131 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><meta name="author" content="Bjarke Viksoe"><meta name="copyright" content="viksoe.dk"><meta name="keywords" content="viksoe.dk, source code, windows, intellimouse support, mouse driver, wtl"><meta name="description" content="Adds IntelliMouse support to a WTL window"><title>viksoe.dk - IntelliMouse support</title><link rel="stylesheet" type="text/css" href="site/style.css"></head><body><div align="center"><table border="0" cellpadding="0" cellspacing="0" width="100%" style="display:block; max-width: 70em; margin: auto;"> <tr> <td background="site/ulc.gif" height="36" width="180">&nbsp;</td> <td background="site/ul.gif" height="36">&nbsp;</td> <td background="site/urc.gif" height="36" width="36">&nbsp;</td></tr> <tr> <td background="site/l.gif" valign="top" width="180"><nav> <a href="index.htm"><img alt="Home" title="Home" border="0" height="36" hspace="0" src="site/i_home.gif" width="180"></a><br> <a href="all_news.htm"><img alt="Recent changes" title="Recent changes" border="0" height="36" hspace="0" src="site/i_news.gif" width="180"></a><br> <img border="0" height="36" hspace="0" src="site/l.gif" width="180" alt=""><br> <a href="all_atl.htm"><img alt="ATL code" title="ATL code" border="0" height=36 hspace="0" src="site/i_atl.gif" width="180"></a><br> <a href="all_wtl.htm"><img alt="WTL code" title="WTL code" border="0" height=36 hspace="0" src="site/i_wtl.gif" width="180"></a><br> <a href="all_mfc.htm"><img alt="MFC code" title="MFC code" border="0" height=36 hspace="0" src="site/i_mfc.gif" width="180"></a><br> <a href="all_cpp.htm"><img alt="C++ code" title="C++ code" border="0" height=36 hspace="0" src="site/i_cpp.gif" width="180"></a><br> <a href="all_net.htm"><img alt=".Net code" title=".Net code" border="0" height="36" hspace="0" src="site/i_net.gif" width="180"></a><br> <a href="all_wince.htm"><img alt="PocketPC code" title="PocketPC code" border="0" height="36" hspace="0" src="site/i_wince.gif" width="180"></a><br> <a href="all_misc.htm"><img alt="Miscellaneous" title="Miscellaneous" border="0" height="36" hspace="0" src="site/i_misc.gif" width="180"></a><br> </nav></td> <td valign="top" align="left"> <p align="center"><img width="225" height="45" src="site/logo.gif" alt="viksoe.dk"></p><a name="top"></a><article role="article" itemscope itemtype="http://schema.org/BlogPosting"><header><h1 itemprop="name">IntelliMouse support</h1></header>
+<p><img src="screenshots/intellimouse.gif" itemprop="image" alt="IntelliMouse support"></p>
+<span itemprop="author" itemscope itemtype="http://schema.org/Person"><small><font color="darkgray">Written by <span itemprop="name">Bjarke Viksoe</span>.</font></small></span><br><small><font color="darkgray">This article was submitted <time pubdate="pubdate" datetime="2004-08-14">8/14/2004</time>.</font></small><meta itemprop="datePublished" content="2004-08-14"><br><br><br>
+<div itemprop="articleBody">This sample demonstrates how to add <b>IntelliMouse</b> support to a WTL window.
+<p>
+IntelliMouse is a Microsoft invention that allows you to pan and zoom 
+data in a window using the middle mouse button. The idea saw its light when
+the new mouse-wheel appeared on Microsoft mouse hardware, and using different
+combinations of scrolling, clicking and the CTRL and SHIFT keys, one
+can pan, zoom and scale windows with the middle mouse-button (or mouse-wheel).
+
+<p>
+
+The IntelliMouse SDK (there <i>is</i> actually an IntelliMouse SDK) defines the
+following actions:
+<p>
+
+<table width="300" cellpadding="0" cellspacing="0" border="0">
+<tr><td style="width:20">&nbsp;</td><td valign="top" bgcolor="#ffffff">
+<font size="2" face="verdana, arial, helv"><b>Mouse Control</b></font></td>
+<td valign="top" bgcolor="#ffffff">
+<font size="2" face="verdana, arial, helv"><b>Operation</b></font></td>
+</tr>
+<tr><td style="width:20">&nbsp;</td><td valign="top" bgcolor="#ffffff">
+<font size="2" face="verdana, arial, helv">Wheel rotation</font></td>
+<td valign="top" bgcolor="#ffffff">
+<font size="2" face="verdana, arial, helv">Scrolling</font></td>
+</tr>
+<tr><td style="width:20">&nbsp;</td><td valign="top" bgcolor="#ffffff">
+<font size="2" face="verdana, arial, helv">Ctrl+wheel rotation</font></td>
+<td valign="top" bgcolor="#ffffff">
+<font size="2" face="verdana, arial, helv">Zooming</font></td>
+</tr>
+<tr><td style="width:20">&nbsp;</td><td valign="top" bgcolor="#ffffff">
+<font size="2" face="verdana, arial, helv">Shift+wheel rotation</font></td>
+<td valign="top" bgcolor="#ffffff">
+<font size="2" face="verdana, arial, helv">Datazoom</font></td>
+</tr>
+<tr><td style="width:20">&nbsp;</td><td valign="top" bgcolor="#ffffff">
+<font size="2" face="verdana, arial, helv">Wheel button click and drag</font></td>
+<td valign="top" bgcolor="#ffffff">
+<font size="2" face="verdana, arial, helv">Panning</font></td>
+</tr>
+<tr><td style="width:20">&nbsp;</td><td valign="top" bgcolor="#ffffff">
+<font size="2" face="verdana, arial, helv">Wheel button click</font></td>
+<td valign="top" bgcolor="#ffffff">
+<font size="2" face="verdana, arial, helv">Autoscroll</font></td>
+</tr>
+</table>
+
+<br>
+
+Scrolling and zooming seems logical actions for the mouse, but &quot;Autoscroll&quot;? These are actually
+subtle features in various Internet Explorer and Office products. IE lets you move back and forward in
+the URL history, and Office also defines some neat behaviours in different views.
+
+<p>
+
+On some systems the IntelliMouse system may seem to already magically work on all applications you load.
+This is because it has the <i>IntelliMouse mouse driver</i> installed. This
+driver hooks up all child windows and adds scroll support for many of them,
+including the <code>TreeView</code> and <code>ListView</code> controls, and seems to
+translate scrolling into <code>WM_VSCROLL</code> and <code>WM_HSCROLL</code>
+messages if the application doesn't handle the middle mouse itself.
+On systems without this driver, you'll have to add the support yourself.
+
+<p>
+
+To obtain the &quot;<b>MS Office 97 Logo approval</b>&quot; your application was actually required
+to support IntelliMouse (I don't think any product have been discarded because of
+this feature though... or for any missing feature for that matter). This is of
+course a promotional stunt, but don't be afraid to add cool user-friendly navigation
+to your own application. Lack of mouse-wheel support is just something that annoys
+users who are used to work in MS Office products.
+
+<h2>How to use it</h2>
+
+The sample contains a generic class, <code>CIntelliMouseImpl</code> which has
+the basic implementation of an IntelliMouse system. 
+Your software probably requires a different / custom method of scrolling the view, 
+so re-defining the scrolling mechanism, the way movement is communicated to the
+view window or the way the scrolling speed is determined, might be needed.
+To do this, you derive from the <code>CIntelliMouseImpl</code> class and implement 
+your own custom IntelliMouse class where all the scrolling rules are defined.
+
+<p>
+
+This will basically just be a simple class where you override the following callback methods:
+<pre><code>  void OnInstall(HWND)
+  int OnCalculate(POINT, SIZE&)
+  void OnMove(POINT)
+  void OnZoom(POINT)
+  void OnScroll(POINT)
+  void OnDataScroll(POINT)</code></pre>
+
+The base class calls the <code>OnCalculate</code> method to determine the scrolling speed/movement
+and the shape of the cursor (arrow points in the direction of the scroll). The remaining
+methods are called when one of the IntelliSense actions should be carried out. Internally
+these actions will probably end up calling <code>OnCalculate</code> to help them asses
+how much to scroll.
+
+<p>
+
+To use the class, add your <code>CIntelliMouseXXX</code> member variable to a window class
+and call the installation method.
+<pre><code>  CIntelliMouseXXX m_Pan;
+  ...
+  m_Pan.Install(m_hWnd)</code></pre>
+Now, all you need to do is click on the middle mouse button.
+<p>
+Your window should include support for some kind of scrolling. The sample class provided in the
+download file simply manipulates the existing scrollbars in the parent class, and thus
+assuming that both <code>WS_VSCROLL</code> and <code>WS_HSCROL</code> are
+being handled and enabled in the parent.
+<p>
+The code subclasses the parent window (identified by <code>m_hWnd</code>
+in the <code>Install</code> method). It does this to monitor messages that
+causes the panning to be cancelled. Be carefull if you override message
+handlers for the mouse button actions in the main view, because the IntelliMouse
+system must be able to handle them as well.
+
+
+<h2>Source Code Dependencies</h2>
+<a href="https://visualstudio.microsoft.com/" animsrc="no">Microsoft Visual C++ 6.0</a><br>
+<a href="https://sourceforge.net/projects/wtl/" animsrc="no">Microsoft WTL 7.0 Library</a><br>
+
+<a name="download"></a><section><h2>Download Files</h2>
+<table><tr><td><img src="site/download.gif" alt="Download" border="0"></td><td><a href="downloads/gillian_src.zip">Source Code and Sample <small>(103 Kb)</small></a><br>
+</td></tr></table></section></div></article><br><a href="#top"><small><font color="darkgray">To the top</font></small></a><p>&nbsp;</p> <p class="news">&nbsp;</p> </td> <td background="site/rl.gif" width="36"><img height="1" src="site/rl.gif" width="36" alt=""></td></tr> <tr align="left"> <td background="site/llc.gif" height="36" width="180">&nbsp;</td> <td background="site/bl.gif" height="36">&nbsp;</td> <td background="site/lrc.gif" height="36" width="36">&nbsp;</td></tr></table></div></body></html>

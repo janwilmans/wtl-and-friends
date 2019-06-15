@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><meta name="author" content="Bjarke Viksoe"><meta name="copyright" content="viksoe.dk"><meta name="keywords" content="viksoe.dk, source code, windows, tabbed dialog container control, ctabctrl, tab control, wtl"><meta name="description" content="A container window for dialogs"><title>viksoe.dk - Tabbed Dialog Container control</title><link rel="stylesheet" type="text/css" href="site/style.css"></head><body><div align="center"><table border="0" cellpadding="0" cellspacing="0" width="100%" style="display:block; max-width: 70em; margin: auto;"> <tr> <td background="site/ulc.gif" height="36" width="180">&nbsp;</td> <td background="site/ul.gif" height="36">&nbsp;</td> <td background="site/urc.gif" height="36" width="36">&nbsp;</td></tr> <tr> <td background="site/l.gif" valign="top" width="180"><nav> <a href="index.htm"><img alt="Home" title="Home" border="0" height="36" hspace="0" src="site/i_home.gif" width="180"></a><br> <a href="all_news.htm"><img alt="Recent changes" title="Recent changes" border="0" height="36" hspace="0" src="site/i_news.gif" width="180"></a><br> <img border="0" height="36" hspace="0" src="site/l.gif" width="180" alt=""><br> <a href="all_atl.htm"><img alt="ATL code" title="ATL code" border="0" height=36 hspace="0" src="site/i_atl.gif" width="180"></a><br> <a href="all_wtl.htm"><img alt="WTL code" title="WTL code" border="0" height=36 hspace="0" src="site/i_wtl.gif" width="180"></a><br> <a href="all_mfc.htm"><img alt="MFC code" title="MFC code" border="0" height=36 hspace="0" src="site/i_mfc.gif" width="180"></a><br> <a href="all_cpp.htm"><img alt="C++ code" title="C++ code" border="0" height=36 hspace="0" src="site/i_cpp.gif" width="180"></a><br> <a href="all_net.htm"><img alt=".Net code" title=".Net code" border="0" height="36" hspace="0" src="site/i_net.gif" width="180"></a><br> <a href="all_wince.htm"><img alt="PocketPC code" title="PocketPC code" border="0" height="36" hspace="0" src="site/i_wince.gif" width="180"></a><br> <a href="all_misc.htm"><img alt="Miscellaneous" title="Miscellaneous" border="0" height="36" hspace="0" src="site/i_misc.gif" width="180"></a><br> </nav></td> <td valign="top" align="left"> <p align="center"><img width="225" height="45" src="site/logo.gif" alt="viksoe.dk"></p><a name="top"></a><article role="article" itemscope itemtype="http://schema.org/BlogPosting"><header><h1 itemprop="name">Tabbed Dialog Container control</h1></header>
+<p><img src="screenshots/fadebutton.gif" itemprop="image" alt="Tabbed Dialog Container control"></p>
+<span itemprop="author" itemscope itemtype="http://schema.org/Person"><small><font color="darkgray">Written by <span itemprop="name">Bjarke Viksoe</span>.</font></small></span><br><small><font color="darkgray">This article was submitted <time pubdate="pubdate" datetime="2002-06-29">6/29/2002</time>.</font></small><meta itemprop="datePublished" content="2002-06-29"><br><br><br>
+<div itemprop="articleBody">Usually when you use a <b>Tab</b> control, you want to embed a number of views in it.
+Preferably, it would be nice if one could just insert a number of dialog classes
+into the <b>CTabCtrl</b> class and use them as views.
+<br>
+Unfortunately, the standard Tab control does not have this functionality. It's
+relatively easy to add, so Microsoft built a <b>PropertySheet</b> wrapper for this reason.
+But even with this widget, you often miss complete control of what is going on.
+It also tends to do a lot of stuff to support a wizard-type look.
+<p>
+The <b>Tabbed Dialog Container</b>, on the other hand, is a bare bone Tab control.
+It actually contains two controls.<br>
+<ul><li>One is a Tab control with the &quot;easy to add window views&quot; feature. 
+The control eases the management of adding and maintaining dialogs and other 
+windows (views) into the regular Windows&trade; Tab control.</li>
+<li>The base control, however, is a simple child window, 
+which manages the views, and does not display tabs or any other GUI, except for
+placing the active view in its client area.
+The base control, called <code>CDlgContainerCtrl</code>, allows any number
+of views to be added and sends notification when a view becomes visible or
+selected.</li>
+</ul>
+There are plenty of cools things you can use the <code>CDlgContainerCtrl</code> control 
+for, among others a custom <b>Options dialog</b> as demonstrated in my
+<a href="xpui.htm">XP UI Sample</a>.
+
+<h2>How to use it</h2>
+To add the <b>Tab container</b>, place a Tab control on a dialog.
+Add a member variable...
+<pre><code>CDialogTabCtrl m_ctrlTab</code></pre>
+In the <code>OnInitDialog()</code> event handler, add the following line:
+<pre><code>  LRESULT OnInitDialog(UINT /*uMsg*/, 
+                       WPARAM /*wParam*/, 
+                       LPARAM /*lParam*/, 
+                       BOOL& /*bHandled*/)
+  {
+    ...
+    m_ctrlTab.SubclassWindow(GetDlgItem(IDC_TAB1));
+    ...
+  }</code></pre>
+Create views and add them. Same functionality as the regular <b>CTabCtrl</b> control.
+<pre><code>  m_view1.Create(m_hWnd);
+
+  TCITEM tci = { 0 };
+  tci.mask = TCIF_TEXT;
+  tci.pszText = _T(&quot;View 1&quot;);
+  m_ctrlTab.InsertItem(0, &amp;tci, m_view1);</code></pre>
+After adding the views, call <code>SetCurSel()</code> to select a view.
+<pre><code>  m_ctrlTab.SetCurSel(0)</code></pre>
+Remember to add a reflection macro to the parent window's message map:
+<pre><code>  BEGIN_MSG_MAP(CMainDlg)
+    ...
+    <b>REFLECT_NOTIFICATIONS()</b>
+  END_MSG_MAP()</code></pre>
+<p>
+When a view is added to the control, the view's parent is changed to a container
+window internal to the tab. Do not send messages to this parent.
+<p>
+Use the following line...
+<pre><code>   m_ctrlTab.Uxtheme_EnableThemeDialogTexture(m_view1, ETDT_ENABLETAB);</code></pre>
+...to enable Windows XP painting of your dialog that matches the tab default interior.
+
+
+<h2>Source Code Dependencies</h2>
+<a href="https://visualstudio.microsoft.com/" animsrc="no">Microsoft Visual C++ 6.0</a><br>
+<a href="https://sourceforge.net/projects/wtl/" animsrc="no">Microsoft WTL 7.0 Library</a><br>
+
+<a name="download"></a><section><h2>Download Files</h2>
+<table><tr><td><img src="site/download.gif" alt="Download" border="0"></td><td><a href="downloads/dlgtabctrl_src.zip">Source Code <small>(4 Kb)</small></a><br>
+<a href="downloads/fadebuttontest_src.zip">Sample Project <small>(44 Kb)</small></a><br>
+</td></tr></table></section></div></article><br><a href="#top"><small><font color="darkgray">To the top</font></small></a><p>&nbsp;</p> <p class="news">&nbsp;</p> </td> <td background="site/rl.gif" width="36"><img height="1" src="site/rl.gif" width="36" alt=""></td></tr> <tr align="left"> <td background="site/llc.gif" height="36" width="180">&nbsp;</td> <td background="site/bl.gif" height="36">&nbsp;</td> <td background="site/lrc.gif" height="36" width="36">&nbsp;</td></tr></table></div></body></html>

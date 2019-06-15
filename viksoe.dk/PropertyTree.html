@@ -1,0 +1,95 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><meta name="author" content="Bjarke Viksoe"><meta name="copyright" content="viksoe.dk"><meta name="keywords" content="viksoe.dk, source code, windows, propertytree control, property tree, propertytree, editor, property control, inplace editing, options control, checkmark, wtl"><meta name="description" content="A WTL Property Tree control; resembles the IE Options control"><title>viksoe.dk - PropertyTree control</title><link rel="stylesheet" type="text/css" href="site/style.css"></head><body><div align="center"><table border="0" cellpadding="0" cellspacing="0" width="100%" style="display:block; max-width: 70em; margin: auto;"> <tr> <td background="site/ulc.gif" height="36" width="180">&nbsp;</td> <td background="site/ul.gif" height="36">&nbsp;</td> <td background="site/urc.gif" height="36" width="36">&nbsp;</td></tr> <tr> <td background="site/l.gif" valign="top" width="180"><nav> <a href="index.htm"><img alt="Home" title="Home" border="0" height="36" hspace="0" src="site/i_home.gif" width="180"></a><br> <a href="all_news.htm"><img alt="Recent changes" title="Recent changes" border="0" height="36" hspace="0" src="site/i_news.gif" width="180"></a><br> <img border="0" height="36" hspace="0" src="site/l.gif" width="180" alt=""><br> <a href="all_atl.htm"><img alt="ATL code" title="ATL code" border="0" height=36 hspace="0" src="site/i_atl.gif" width="180"></a><br> <a href="all_wtl.htm"><img alt="WTL code" title="WTL code" border="0" height=36 hspace="0" src="site/i_wtl.gif" width="180"></a><br> <a href="all_mfc.htm"><img alt="MFC code" title="MFC code" border="0" height=36 hspace="0" src="site/i_mfc.gif" width="180"></a><br> <a href="all_cpp.htm"><img alt="C++ code" title="C++ code" border="0" height=36 hspace="0" src="site/i_cpp.gif" width="180"></a><br> <a href="all_net.htm"><img alt=".Net code" title=".Net code" border="0" height="36" hspace="0" src="site/i_net.gif" width="180"></a><br> <a href="all_wince.htm"><img alt="PocketPC code" title="PocketPC code" border="0" height="36" hspace="0" src="site/i_wince.gif" width="180"></a><br> <a href="all_misc.htm"><img alt="Miscellaneous" title="Miscellaneous" border="0" height="36" hspace="0" src="site/i_misc.gif" width="180"></a><br> </nav></td> <td valign="top" align="left"> <p align="center"><img width="225" height="45" src="site/logo.gif" alt="viksoe.dk"></p><a name="top"></a><article role="article" itemscope itemtype="http://schema.org/BlogPosting"><header><h1 itemprop="name">PropertyTree control</h1></header>
+<p><img src="screenshots/propertytree.gif" itemprop="image" alt="PropertyTree control"></p>
+<span itemprop="author" itemscope itemtype="http://schema.org/Person"><small><font color="darkgray">Written by <span itemprop="name">Bjarke Viksoe</span>.</font></small></span><br><small><font color="darkgray">This article was submitted <time pubdate="pubdate" datetime="2002-01-06">1/6/2002</time>.</font></small><meta itemprop="datePublished" content="2002-01-06"><br><br><br>
+<div itemprop="articleBody">After restructuring my WTL <A HREF="propertylist.htm">PropertyList</A> control to allow
+the inline editor controls to operate independantly, I tweaked out this little control.
+<br>
+It looks a bit like the <b>Internet Explorer Option dialog</b> control.
+<p>
+It can use several in-place editors, such as dropdown lists and filename browsers.
+They are all standard windows, which link to the parent control through a generic 
+interface and some shared window messages.
+<br>
+Because of this, you may extend the control with your own property types.
+They can be owner-drawn or contain your own popup dialogs.
+<p>
+The control is a subclassed <code>TreeView</code> control. 
+<p>
+
+<h2>How to use it</h2>
+Place a tree control on a dialog.
+<br>
+Add a member variable to your dialog class...
+<pre><code>CPropertyTreeCtrl m_Tree</code></pre>
+In the <code>OnInitDialog()</code> event handler, add the following line:
+<pre><code>LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPA...
+{
+  ...
+  m_Tree.SubclassWindow(GetDlgItem(IDC_TREE1));
+  ...
+}</code></pre>
+Then add the following reflection macro to your main message map:
+<pre><code>BEGIN_MSG_MAP(CMainDlg)
+  ...
+  <b>REFLECT_NOTIFICATIONS()</b>
+END_MSG_MAP()</code></pre>
+<br>
+Here are some of the control methods available:
+<pre><code>InsertItem
+SetCheckState
+GetItemTitle
+GetItemValue
+SetItemValue
+EnableItem</code></pre>
+and most of the original <code>CTreeViewCtrl</code> methods still work as well.
+<p>
+So, set some control flags...
+<pre><code>m_Tree.SetExtendedTreeStyle(PTS_EX_NOCOLLAPSE);</code></pre>
+And remember to add an <code>ImageList</code> to the control.
+<br>
+Adding a property requires using a &quot;<i>creation helper</i>&quot; method...
+<pre><code>m_Tree.InsertItem( PropCreateReadOnlyItem(&quot;Appearance&quot;), 8, 8, TVI_ROOT );
+m_Tree.InsertItem( PropCreateCheckmark(&quot;AAA&quot;), 0, 0, hItem );
+m_Tree.InsertItem( PropCreateOptionCheck(&quot;BBB&quot;, true), 0, 0, hItem );</code></pre>
+Many of the arguments in the <code>InsertItem()</code> are the same as for the standard tree control,
+but you use the <i>creation helper</i> method to pass the control type.
+<br>
+The last few arguments describe the images to use, and the position where to insert
+the new item.
+For the <b>checkmark</b> and <b>option</b> property, the two image arguments are ignored.
+You may also associate some item-data to each property, so it can later be identified.
+<br>
+The <A HREF="propertylist.htm">PropertyList</A> control sample explains how to add
+and use some of the other editors.
+<p>
+Several notifications are sent back to the owner window. 
+They contain information about the property changing using 
+<code>WM_NOTIFY</code> notification structure: <code>NMPROPERTYITEM</code>.
+The list of notifications currently include:
+<pre><code>PIN_SELCHANGED
+PIN_ITEMCHANGING
+PIN_ITEMCHANGED
+PIN_COLLAPSING
+PIN_EXPANDING
+PIN_DBLCLICK
+PIN_BROWSE
+PIN_CLICK</code></pre>
+In addition, all of the original <code>TreeView</code> notifications are also
+available.
+<p>
+The sample includes a bitmap, which contains the icons for the checkmark and
+option box. These controls are fixed to this bitmap layout.
+
+
+<h2>Source Code Dependencies</h2>
+<a href="https://visualstudio.microsoft.com/" animsrc="no">Microsoft Visual C++ 6.0</a><br>
+<a href="https://sourceforge.net/projects/wtl/" animsrc="no">Microsoft WTL 3.1 Library</a><br>
+
+<h2>See Also</h2>
+<a href="propertylist.htm">My Property List control</a><br>
+<a href="propertygrid.htm">My Property Grid control</a><br>
+<a name="download"></a><section><h2>Download Files</h2>
+<table><tr><td><img src="site/download.gif" alt="Download" border="0"></td><td><a href="downloads/proptreetest_src.zip">Source Code and sample <small>(30 Kb)</small></a><br>
+</td></tr></table></section></div></article><br><a href="#top"><small><font color="darkgray">To the top</font></small></a><p>&nbsp;</p> <p class="news">&nbsp;</p> </td> <td background="site/rl.gif" width="36"><img height="1" src="site/rl.gif" width="36" alt=""></td></tr> <tr align="left"> <td background="site/llc.gif" height="36" width="180">&nbsp;</td> <td background="site/bl.gif" height="36">&nbsp;</td> <td background="site/lrc.gif" height="36" width="36">&nbsp;</td></tr></table></div></body></html>

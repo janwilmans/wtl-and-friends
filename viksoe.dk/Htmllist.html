@@ -1,0 +1,135 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><meta name="author" content="Bjarke Viksoe"><meta name="copyright" content="viksoe.dk"><meta name="keywords" content="viksoe.dk, source code, windows, html list control, list control, html, dhtml, script, owner drawn list, wtl"><meta name="description" content="A WTL list control which uses the HTML layout engine"><title>viksoe.dk - HTML List control</title><link rel="stylesheet" type="text/css" href="site/style.css"></head><body><div align="center"><table border="0" cellpadding="0" cellspacing="0" width="100%" style="display:block; max-width: 70em; margin: auto;"> <tr> <td background="site/ulc.gif" height="36" width="180">&nbsp;</td> <td background="site/ul.gif" height="36">&nbsp;</td> <td background="site/urc.gif" height="36" width="36">&nbsp;</td></tr> <tr> <td background="site/l.gif" valign="top" width="180"><nav> <a href="index.htm"><img alt="Home" title="Home" border="0" height="36" hspace="0" src="site/i_home.gif" width="180"></a><br> <a href="all_news.htm"><img alt="Recent changes" title="Recent changes" border="0" height="36" hspace="0" src="site/i_news.gif" width="180"></a><br> <img border="0" height="36" hspace="0" src="site/l.gif" width="180" alt=""><br> <a href="all_atl.htm"><img alt="ATL code" title="ATL code" border="0" height=36 hspace="0" src="site/i_atl.gif" width="180"></a><br> <a href="all_wtl.htm"><img alt="WTL code" title="WTL code" border="0" height=36 hspace="0" src="site/i_wtl.gif" width="180"></a><br> <a href="all_mfc.htm"><img alt="MFC code" title="MFC code" border="0" height=36 hspace="0" src="site/i_mfc.gif" width="180"></a><br> <a href="all_cpp.htm"><img alt="C++ code" title="C++ code" border="0" height=36 hspace="0" src="site/i_cpp.gif" width="180"></a><br> <a href="all_net.htm"><img alt=".Net code" title=".Net code" border="0" height="36" hspace="0" src="site/i_net.gif" width="180"></a><br> <a href="all_wince.htm"><img alt="PocketPC code" title="PocketPC code" border="0" height="36" hspace="0" src="site/i_wince.gif" width="180"></a><br> <a href="all_misc.htm"><img alt="Miscellaneous" title="Miscellaneous" border="0" height="36" hspace="0" src="site/i_misc.gif" width="180"></a><br> </nav></td> <td valign="top" align="left"> <p align="center"><img width="225" height="45" src="site/logo.gif" alt="viksoe.dk"></p><a name="top"></a><article role="article" itemscope itemtype="http://schema.org/BlogPosting"><header><h1 itemprop="name">HTML List control</h1></header>
+<p><img src="screenshots/htmllist.gif" itemprop="image" alt="HTML List control"></p>
+<span itemprop="author" itemscope itemtype="http://schema.org/Person"><small><font color="darkgray">Written by <span itemprop="name">Bjarke Viksoe</span>.</font></small></span><br><small><font color="darkgray">This article was submitted <time pubdate="pubdate" datetime="2001-06-12">6/12/2001</time>.</font></small><meta itemprop="datePublished" content="2001-06-12"><br><br><br>
+<div itemprop="articleBody">When a site reader suggested that I created a grid control, I despaired for
+a brief moment. 
+They require lots and lots of confusing GDI calls and layout code. 
+In addition, they are a nightmare to maintain.
+Moreover, there are several nice free MFC grid controls on source sharing sites such as 
+<a href="http://www.codeproject.com" _target="_blank">codeproject.com</a>. 
+<p>
+I work as a <i>java</i> programmer in the real life and I hardly do any
+C++ development there. On the other hand, I get to do a lot of DHTML and web
+stuff, so I immediately thought of the recent Microsoft apps that use
+DHTML as user interface. Like the Windows Explorer, SQL Server 7, MS Outlook Express
+and even the little <b>Add/Remove Programs</b> control-panel applet in Windows 2000. 
+<p>
+I like the <b>Add/Remove Programs</b> applet.
+Now there's two simple list controls that look neat -  
+and they are written in DHTML using MS IE as layout engine.
+With a list control like that, you can tweak out any cool layout, mouse-over
+effect, fade, slide-out effect, font effect etc. etc. You have more choices and
+better control than any grid control I know of.
+<br>
+So here is my first HTML control for WTL.
+
+<h2>HTML List</h2>
+At first sight, the <b>HTML List</b> control behaves like an ordinary ListBox control. 
+It has a similar API. The main difference is that it is really a web browser
+window presenting the list items. Clicks and mouse events are generated
+by Internet Explorer and some DHTML scripting. Events are then sent back
+to the C++ class and back to the application code as <code>WM_NOTIFY</code>
+messages. The application can manipulate the list items, but must use
+the MS IE HTML interfaces, such as the <code>IHTMLElement</code> interface,
+or have DHTML scripts on the HTML page execute the changes.
+<p>
+This is not a lightweight control<i>!</i>
+Of course you will carry the burden of loading MS Internet Explorer into
+your application. It's a horrible waste of resources just to get a list control
+running... but the result looks nice.
+
+<h2>How to use it</h2>
+To use it, place a <b>Web Browser</b> control (ActiveX) on your dialog.
+You do this in the resource editor of Visual C++ v6 by right-clicking on the form and choose
+"<i>Insert ActiveX control...</i>". Then find the <b>Microsoft Web Browser</b>
+item.
+<br>
+Add a member variable to your dialog implementation file...
+<pre><code>CHTMLList m_list</code></pre>
+In the <code>OnInitDialog()</code> event handler, add the following line:
+<pre><code>LRESULT OnInitDialog(UINT /*uMsg*/, 
+                     WPARAM /*wParam*/, 
+                     LPARAM /*lParam*/, 
+                     BOOL& /*bHandled*/)
+{
+  ...
+  m_list.SubclassWindow(GetDlgItem(IDC_LIST1), IDR_HTML);
+  ...
+}</code></pre>
+The <code>IDR_HTML</code> is the HTML resource identifier, which
+contains the HTML code the control is build from (explained below).
+<p>
+Add items to the control using
+<pre><code>  m_list.AddString(&quot;&lt;b&gt;my item text&lt/b&gt;&quot;);</code></pre>
+Notice how the item text can contain HTML. It may even contain scripting code.
+<p>
+The list is build from pure HTML. You can add script code and
+style sheets as you wish - but you must provide a basic framework
+for the control to work with.
+<br>
+At least this snippet of HTML is required:
+<pre><code>&lt;HTML&gt;
+&lt;HEAD&gt;
+&lt;STYLE&gt;
+  BODY { background-color: threedface }
+&lt;/STYLE&gt;
+&lt;/HEAD&gt;
+&lt;SCRIPT FOR=document EVENT=onreadystatechange&gt;
+if(document.readyState==&quot;complete&quot;) 
+  window.external.OnInitialize();
+&lt;/SCRIPT&gt;
+&lt;BODY SCROLL=no&gt;
+&lt;DIV ID=outer&gt;
+  &lt;DIV ID=inner&gt;&lt;/DIV&gt;
+&lt;/DIV&gt;
+&lt;/BODY&gt;
+&lt;/HTML&gt;</code></pre>
+Make sure to add it under the <b>HTML</b> resource type in the resource list.
+That is... right click on the root of the resource list and choose "<i>Insert</i>"
+and then choose "<i>HTML</i>".
+<p>
+The control sends a few notifications back to the owner window. It
+sends information about the HTML elements affected in the 
+<code>WM_NOTIFY</code> notification structure: <code>NMHTMLLIST</code>.
+The list of notifications currently include:
+<pre><code>HLN_INITIALIZE
+HLN_SELCHANGING
+HLN_SELCHANGED
+HLN_MOUSEOVER
+HLN_MOUSEOUT
+HLN_INSERTITEM
+HLN_DELETEITEM
+NM_HOVER
+NM_CLICK</code></pre>
+The <code>HLN_INITIALIZE</code> notification is generated when the control is ready
+to accept input. Do your data initialisation there.
+<p>
+The HTML can include script code that calls methods inside the C++ control. This
+is done using my <b>ATL Dynamic Dispatch</b> classes. The script code
+uses <code>window.external.Method()</code> syntax to communicate with
+the C++ code.
+<br>
+The sample you can download below contains the simulations of the two list controls
+in the <b>Add/Remove Programs</b> applet. They demonstrate how to set up the
+control, use notification messages and how to call methods back inside the script code.
+
+
+<h2>Notes</h2>
+<div class="listsection">The original <b>Add/Remove Programs</b> applet can be 
+inspected in the system file <b>appwiz.cpl</b>. It is a 
+so called &quot;HTML application&quot; (HTA).</div>
+
+<h2>Source Code Dependencies</h2>
+<a href="https://www.microsoft.com/download/internet-explorer.aspx" animsrc="no">Internet Explorer 4 or better</a><br>
+<a href="https://visualstudio.microsoft.com/" animsrc="no">Microsoft Visual C++ 6.0</a><br>
+<a href="https://sourceforge.net/projects/wtl/" animsrc="no">Microsoft WTL 3.1 Library</a><br>
+<a href="https://visualstudio.microsoft.com/" animsrc="no">Microsoft ATL Library</a><br>
+
+<h2>See Also</h2>
+<a href="atldyndispatch.htm">My ATL Dynamic Dispatch classes</a><br>
+<a href="propertygrid.htm">Eventually I did create a real grid control</a><br>
+<a name="download"></a><section><h2>Download Files</h2>
+<table><tr><td><img src="site/download.gif" alt="Download" border="0"></td><td><a href="downloads/waycoollist_src.zip">Source Code and sample <small>(60 Kb)</small></a><br>
+</td></tr></table></section></div></article><br><a href="#top"><small><font color="darkgray">To the top</font></small></a><p>&nbsp;</p> <p class="news">&nbsp;</p> </td> <td background="site/rl.gif" width="36"><img height="1" src="site/rl.gif" width="36" alt=""></td></tr> <tr align="left"> <td background="site/llc.gif" height="36" width="180">&nbsp;</td> <td background="site/bl.gif" height="36">&nbsp;</td> <td background="site/lrc.gif" height="36" width="36">&nbsp;</td></tr></table></div></body></html>

@@ -1,0 +1,148 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><meta name="author" content="Bjarke Viksoe"><meta name="copyright" content="viksoe.dk"><meta name="keywords" content="viksoe.dk, source code, windows, propertylist control, property list, propertylist, editor, property control, inplace editing, wtl"><meta name="description" content="A WTL property list control; just like the one in MS Visual Basic"><title>viksoe.dk - PropertyList control</title><link rel="stylesheet" type="text/css" href="site/style.css"></head><body><div align="center"><table border="0" cellpadding="0" cellspacing="0" width="100%" style="display:block; max-width: 70em; margin: auto;"> <tr> <td background="site/ulc.gif" height="36" width="180">&nbsp;</td> <td background="site/ul.gif" height="36">&nbsp;</td> <td background="site/urc.gif" height="36" width="36">&nbsp;</td></tr> <tr> <td background="site/l.gif" valign="top" width="180"><nav> <a href="index.htm"><img alt="Home" title="Home" border="0" height="36" hspace="0" src="site/i_home.gif" width="180"></a><br> <a href="all_news.htm"><img alt="Recent changes" title="Recent changes" border="0" height="36" hspace="0" src="site/i_news.gif" width="180"></a><br> <img border="0" height="36" hspace="0" src="site/l.gif" width="180" alt=""><br> <a href="all_atl.htm"><img alt="ATL code" title="ATL code" border="0" height=36 hspace="0" src="site/i_atl.gif" width="180"></a><br> <a href="all_wtl.htm"><img alt="WTL code" title="WTL code" border="0" height=36 hspace="0" src="site/i_wtl.gif" width="180"></a><br> <a href="all_mfc.htm"><img alt="MFC code" title="MFC code" border="0" height=36 hspace="0" src="site/i_mfc.gif" width="180"></a><br> <a href="all_cpp.htm"><img alt="C++ code" title="C++ code" border="0" height=36 hspace="0" src="site/i_cpp.gif" width="180"></a><br> <a href="all_net.htm"><img alt=".Net code" title=".Net code" border="0" height="36" hspace="0" src="site/i_net.gif" width="180"></a><br> <a href="all_wince.htm"><img alt="PocketPC code" title="PocketPC code" border="0" height="36" hspace="0" src="site/i_wince.gif" width="180"></a><br> <a href="all_misc.htm"><img alt="Miscellaneous" title="Miscellaneous" border="0" height="36" hspace="0" src="site/i_misc.gif" width="180"></a><br> </nav></td> <td valign="top" align="left"> <p align="center"><img width="225" height="45" src="site/logo.gif" alt="viksoe.dk"></p><a name="top"></a><article role="article" itemscope itemtype="http://schema.org/BlogPosting"><header><h1 itemprop="name">PropertyList control</h1></header>
+<p><img src="screenshots/propertylist.gif" itemprop="image" alt="PropertyList control"></p>
+<span itemprop="author" itemscope itemtype="http://schema.org/Person"><small><font color="darkgray">Written by <span itemprop="name">Bjarke Viksoe</span>.</font></small></span><br><small><font color="darkgray">This article was submitted <time pubdate="pubdate" datetime="2001-08-14">8/14/2001</time>.</font></small><meta itemprop="datePublished" content="2001-08-14"><br><br><br>
+<div itemprop="articleBody">I found time to modify my WTL <A HREF="propertyview.htm">PropertyView</A> control to function as a 
+real <b>Property List</b> control, just like the one known from the Visual Basic IDE.
+It has been fitted with several in-place editors, such as dropdown lists and filename browsers.
+<p>
+The control is a subclassed <code>LISTBOX</code> control. 
+A good number of <code>IProperty</code> derived classes define how each property type
+is handled and rendered. Each property class is responsible for its own editor look
+and manages its own rendering, click behavior, validation and attached popup dialogs.
+<br>
+Because of this, you may extend the control with your own property types.
+They can be owner-drawn or contain your own popup dialogs.
+<p>
+It can operate in two modes: With and without <b>categories</b>. 
+If categories are enabled, then items are grouped in expandable lists. 
+Category lists can be expanded/collapsed by clicking on the little plus/minus icon.
+<p>
+There are actually several fine <b>Property List</b> control implementations to be found
+on the internet - both commercial and free-ware. 
+I have even found a few ATL based implementations, so
+before you decide to use this control, it might be worth it to scour the web first.
+
+<h2>How to use it</h2>
+Place a <code>LISTBOX</code> control on a dialog.
+<br>
+Add a member variable to your dialog class...
+<pre><code>CPropertyListCtrl m_list</code></pre>
+In the <code>OnInitDialog()</code> event handler, add the following line:
+<pre><code>LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPA...
+{
+  ...
+  m_list.SubclassWindow(GetDlgItem(IDC_MYLISTBOX));
+  ...
+}</code></pre>
+Then add the following reflection macro to your main message map:
+<pre><code>  BEGIN_MSG_MAP(CMainDlg)
+    ...
+    <b>REFLECT_NOTIFICATIONS()</b>
+  END_MSG_MAP()</code></pre>
+Once the control is created you can add properties. Properties are abstracted into
+the <code>HPROPERTY</code> handle, but in reality, there is a <code>IProperty</code> derived
+class behind it.
+<br>
+Here are some of the control methods available:
+<pre><code>AddItem
+ResetContent
+GetItemName
+GetItemValue
+SetItemValue
+ExpandItem
+CollapseItem</code></pre>
+and many of the original <code>CListBox</code> methods still work too.
+<p>
+So set the control flags...
+<pre><code>  m_list.SetExtendedListStyle(PLS_EX_CATEGORIZED);</code></pre>
+Adding a property requires using a &quot;<i>creation helper</i>&quot; method...
+<pre><code>  m_list.AddItem( PropCreateCategory(&quot;Appearance&quot;) );
+  m_list.AddItem( PropCreateSimple(&quot;Name&quot;, &quot;Form1&quot;) );
+  m_list.AddItem( PropCreateSimple(&quot;X&quot;, 123L) );
+  m_list.AddItem( PropCreateSimple(&quot;Y&quot;, 456L) );</code></pre>
+You can associate some item-data to each property, so it can later be identified.
+<p>
+Several notifications are sent back to the owner window. 
+They contain information about the property changing using 
+<code>WM_NOTIFY</code> notification structure: <code>NMPROPERTYITEM</code>.
+The list of notifications currently include:
+<pre><code>PIN_SELCHANGED
+PIN_ITEMCHANGING
+PIN_ITEMCHANGED
+PIN_COLLAPSING
+PIN_EXPANDING
+PIN_DBLCLICK
+PIN_BROWSE
+PIN_CLICK</code></pre>
+<p>
+The control needs the <code>LBS_OWNERDRAWVARIABLE</code> flag so it can draw its own items.
+You may only enable the <code>LBS_SORT</code> and <code>LBS_HASSTRINGS</code> flags 
+to have sorted items if you're not using categories.
+
+<h2>Available Editors</h2>
+I have included a few common in-place editors so you can see the general idea.
+<br>
+Here is a list of most of them...
+<p>
+<code>PropCreateSimple (text)</code><br>
+A simple string with an in-place edit control to modify the value.
+<br>
+<code>PropCreateSimple (boolean)</code><br>
+A boolean property shown as a
+dropdown list with two entries: true and false.
+<br>
+<code>PropCreateSimple (long)</code><br>
+An integer. Unsigned integers are
+automatically filtered for numeric characters only. 
+The integer property uses the edit control as its in-place editor.
+<br>
+<code>PropCreateVariant (VARIANT)</code><br>
+Other data types, which are also
+modified using the in-place edit control. You can pass any type that the <code>VARIANT</code>
+type supports. This includes <i>decimal</i> values.
+<br>
+<code>PropCreateFileName</code><br>
+A filename and a browse button. Launches the
+Windows File Dialog.
+<br>
+<code>PropCreateList</code><br>
+Creates a property with a dropdown list. The list
+items are supplied as an argument. The selected list index is returned as value.
+<br>
+<code>PropCreateCheckButton</code><br>
+A simple property, which only displays a checkmark
+button. Acts as a boolean switch.
+<br>
+<code>PropCreateComboControl</code><br>
+Creates a property with a dropdown list. The caller must supply an ownerdrawn ListBox control
+to the property, which will be shown.
+<br>
+<code>PropCreateReadOnlyItem</code><br>
+A read-only property.
+<p>
+This particular list control also defines a <code>PropCreateCategory</code>
+property type, which is used to add a collapsible grouping of properties.
+Other of my property controls (see links below) may define custom properties that
+are needed for their specific use.
+<p>
+A property class (or <code>HPROPERTY</code> handle) is constructed when you call one
+of these creation methods. Once the property is returned, it must be passed to the
+control because it is the control that manages its lifespan and makes sure to
+destroy the handle appropriately. The application may hold on to the handle and
+use it only as long as the item is availabe in the control or the control window 
+has not been destroyed.
+
+
+<h2>Source Code Dependencies</h2>
+<a href="https://visualstudio.microsoft.com/" animsrc="no">Microsoft Visual C++ 6.0</a><br>
+<a href="https://sourceforge.net/projects/wtl/" animsrc="no">Microsoft WTL 3.1 Library</a><br>
+
+<h2>See Also</h2>
+<a href="propertytree.htm">My Property Tree control</a><br>
+<a href="propertygrid.htm">My Property Grid control</a><br>
+<a href="propertyview.htm">A simple Property View control</a><br>
+<a name="download"></a><section><h2>Download Files</h2>
+<table><tr><td><img src="site/download.gif" alt="Download" border="0"></td><td><a href="downloads/proplisttest_src.zip">Source Code and sample <small>(31 Kb)</small></a><br>
+</td></tr></table></section></div></article><br><a href="#top"><small><font color="darkgray">To the top</font></small></a><p>&nbsp;</p> <p class="news">&nbsp;</p> </td> <td background="site/rl.gif" width="36"><img height="1" src="site/rl.gif" width="36" alt=""></td></tr> <tr align="left"> <td background="site/llc.gif" height="36" width="180">&nbsp;</td> <td background="site/bl.gif" height="36">&nbsp;</td> <td background="site/lrc.gif" height="36" width="36">&nbsp;</td></tr></table></div></body></html>
