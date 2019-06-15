@@ -3,7 +3,7 @@ Auxiliary repository for packaging WTL and several other libraries as Nuget pack
 
 # PropertyGrid
 
-Original source code from Bjarke Viksoe. Modernized and updated for use with [WTL 10](https://www.nuget.org/packages/wtl/) and published at <https://www.nuget.org/packages/WTLPropertyGrid/>
+Original source code from Bjarke Viksoe. Modernized and updated for use with [WTL 10](https://www.nuget.org/packages/wtl/) and published in a [nuget package](https://www.nuget.org/packages/WTLPropertyGrid/).
 
 The library was also reworked to work with vs2019, /c++latest and /permissive-.
 
